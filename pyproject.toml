@@ -1,0 +1,34 @@
+[project]
+name = "rust-with-python"
+version = "0.1.0"
+description = "Template project demonstrating Python and Rust integration with PyO3"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{name = "Your Name", email = "you@example.com"}]
+license = {text = "MIT"}
+keywords = ["python", "rust", "pyo3", "performance", "template"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Rust",
+]
+dependencies = [
+    "digits-calculator @ file://${PROJECT_ROOT}/digits-calculator",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "C4"]
+ignore = ["E501"]

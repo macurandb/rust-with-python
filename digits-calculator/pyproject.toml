@@ -1,0 +1,17 @@
+[build-system]
+requires = ["maturin>=1.10,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "digits-calculator"
+version = "0.1.0"
+description = "High-performance mathematical calculations in Rust, exposed to Python via PyO3"
+requires-python = ">=3.13"
+authors = [{name = "Your Name", email = "you@example.com"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
