@@ -665,10 +665,36 @@ Check the specific error messages for guidance.
 
 ### Build issues on macOS
 
+This template includes specific solutions for common PyO3 issues on macOS:
+
+#### Conda Environment Conflicts
+If `maturin` fails with linking errors when Conda is active:
+```bash
+unset CONDA_PREFIX
+make build
+```
+Our Makefile automatically handles this for you.
+
+#### Xcode Command Line Tools
 If you encounter linking errors, ensure Xcode command line tools are installed:
 ```bash
 xcode-select --install
 ```
+
+#### Architecture Issues (Apple Silicon)
+For M1/M2/M3 Macs, if you see architecture warnings:
+```bash
+export ARCHFLAGS="-arch arm64"
+make build
+```
+
+#### Multiple Python Versions
+Use `uv` for consistent Python management (already configured):
+```bash
+make clean && make install
+```
+
+For comprehensive macOS troubleshooting, see [MACOS_TROUBLESHOOTING.md](MACOS_TROUBLESHOOTING.md)
 
 ## 📖 Additional Resources
 
@@ -676,6 +702,7 @@ xcode-select --install
 - [maturin User Guide](https://maturin.rs/)
 - [Rust Book](https://doc.rust-lang.org/book/)
 - [uv Documentation](https://docs.astral.sh/uv/)
+- [macOS Troubleshooting Guide](MACOS_TROUBLESHOOTING.md) - Comprehensive macOS-specific solutions
 
 ## 🛠️ Technologies Used
 
