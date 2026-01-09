@@ -33,7 +33,7 @@ def main() -> None:
     print("-" * 50)
 
     # Test different precisions
-    iterations = [1_000, 100_000, 1_000_000]
+    iterations: list[int] = [1_000, 100_000, 1_000_000]
     for iters in iterations:
         start_time = time.perf_counter()
         pi_rust = digits_calculator.calculate_pi(iters)
@@ -49,22 +49,25 @@ def main() -> None:
     print("-" * 50)
 
     # 2D Rotation example
-    angle = 30  # degrees
-    rad = math.radians(angle)
-    rotation_matrix = [[math.cos(rad), -math.sin(rad)], [math.sin(rad), math.cos(rad)]]
-    point = [[1.0], [0.0]]  # Point (1,0)
+    angle: int = 30  # degrees
+    rad: float = math.radians(angle)
+    rotation_matrix: list[list[float]] = [
+        [math.cos(rad), -math.sin(rad)],
+        [math.sin(rad), math.cos(rad)],
+    ]
+    point: list[list[float]] = [[1.0], [0.0]]  # Point (1,0)
 
-    result = digits_calculator.matrix_multiply(rotation_matrix, point)
+    result: list[list[float]] = digits_calculator.matrix_multiply(rotation_matrix, point)
     print(f"  Rotating point (1,0) by {angle}°:")
-    print(f"    Original: (1.0, 0.0)")
+    print("    Original: (1.0, 0.0)")
     print(f"    Rotated:  ({result[0][0]:.3f}, {result[1][0]:.3f})")
 
     # Large matrix example
-    large_a = [[i + j for j in range(50)] for i in range(100)]
-    large_b = [[i * 0.1 for i in range(2)] for _ in range(50)]
+    large_a: list[list[float]] = [[float(i + j) for j in range(50)] for i in range(100)]
+    large_b: list[list[float]] = [[i * 0.1 for i in range(2)] for _ in range(50)]
 
     start_time = time.perf_counter()
-    large_result = digits_calculator.matrix_multiply(large_a, large_b)
+    large_result: list[list[float]] = digits_calculator.matrix_multiply(large_a, large_b)
     matrix_time = time.perf_counter() - start_time
 
     print(f"  Large matrix (100×50 × 50×2): {matrix_time * 1000:.2f}ms")
@@ -77,7 +80,7 @@ def main() -> None:
 
     # Safe division
     try:
-        safe_div = digits_calculator.divide(100.0, 3.0)
+        safe_div: float = digits_calculator.divide(100.0, 3.0)
         print(f"  100 ÷ 3 = {safe_div:.6f}")
 
         # This will raise an exception
@@ -87,7 +90,7 @@ def main() -> None:
 
     # Safe square root
     try:
-        sqrt_result = digits_calculator.safe_sqrt(2.0)
+        sqrt_result: float = digits_calculator.safe_sqrt(2.0)
         print(f"  √2 = {sqrt_result:.10f}")
 
         # This will raise an exception
@@ -100,10 +103,10 @@ def main() -> None:
     print("! 4. FACTORIAL COMPUTATION")
     print("-" * 50)
 
-    factorials = [0, 1, 5, 10, 15, 20]
+    factorials: list[int] = [0, 1, 5, 10, 15, 20]
     for n in factorials:
         try:
-            result = digits_calculator.factorial(n)
+            result: int = digits_calculator.factorial(n)
             print(f"  {n:2d}! = {result:,}")
         except ValueError as e:
             print(f"  {n}! = Error: {e}")
@@ -120,10 +123,14 @@ def main() -> None:
     print("-" * 50)
 
     # Large number addition
-    large_nums = [(999_999_999, 1), (123_456_789, 987_654_321), (2**50, 2**50)]
+    large_nums: list[tuple[int, int]] = [
+        (999_999_999, 1),
+        (123_456_789, 987_654_321),
+        (2**50, 2**50),
+    ]
 
     for a, b in large_nums:
-        result = digits_calculator.sum_as_string(a, b)
+        result: str = digits_calculator.sum_as_string(a, b)
         print(f"  {a:,} + {b:,} = {result}")
     print()
 
@@ -132,16 +139,16 @@ def main() -> None:
     print("-" * 50)
 
     # Python vs Rust Pi calculation
-    start_time = time.perf_counter()
-    pi_python = sum(4 * ((-1) ** k) / (2 * k + 1) for k in range(100_000))
-    python_time = time.perf_counter() - start_time
+    start_time: float = time.perf_counter()
+    pi_python: float = sum(4 * ((-1) ** k) / (2 * k + 1) for k in range(100_000))
+    python_time: float = time.perf_counter() - start_time
 
     start_time = time.perf_counter()
-    pi_rust = digits_calculator.calculate_pi(100_000)
-    rust_time = time.perf_counter() - start_time
+    pi_rust: float = digits_calculator.calculate_pi(100_000)
+    rust_time: float = time.perf_counter() - start_time
 
-    speedup = python_time / rust_time
-    print(f"  π calculation (100K iterations):")
+    speedup: float = python_time / rust_time
+    print("  π calculation (100K iterations):")
     print(f"    Python: {python_time * 1000:.2f}ms → π ≈ {pi_python:.8f}")
     print(f"    Rust:   {rust_time * 1000:.2f}ms → π ≈ {pi_rust:.8f}")
     print(f"    🚀 Speedup: {speedup:.1f}x faster!")

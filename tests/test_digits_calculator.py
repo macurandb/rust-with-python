@@ -8,8 +8,9 @@ with parametrization, fixtures, and proper exception handling.
 
 import math
 
-import digits_calculator
 import pytest
+
+import digits_calculator
 
 # ============================================================================
 # Fixtures
@@ -17,7 +18,7 @@ import pytest
 
 
 @pytest.fixture
-def pi_actual():
+def pi_actual() -> float:
     """Fixture providing the actual value of pi."""
     return math.pi
 
@@ -39,9 +40,11 @@ class TestCalculatePi:
             (100, (2.5, 3.5)),
         ],
     )
-    def test_calculate_pi_ranges(self, iterations, expected_range):
+    def test_calculate_pi_ranges(
+        self, iterations: int, expected_range: tuple[float, float]
+    ) -> None:
         """Test calculate_pi returns values in expected ranges for various iteration counts."""
-        result = digits_calculator.calculate_pi(iterations)
+        result: float = digits_calculator.calculate_pi(iterations)
         assert isinstance(result, float), "Result should be a float"
         assert expected_range[0] <= result <= expected_range[1], (
             f"Pi({iterations}) should be between {expected_range[0]} and {expected_range[1]}"
@@ -55,29 +58,31 @@ class TestCalculatePi:
             (1_000_000, 0.001),
         ],
     )
-    def test_calculate_pi_accuracy(self, iterations, max_error, pi_actual):
+    def test_calculate_pi_accuracy(
+        self, iterations: int, max_error: float, pi_actual: float
+    ) -> None:
         """Test calculate_pi accuracy improves with iterations."""
-        result = digits_calculator.calculate_pi(iterations)
-        error = abs(result - pi_actual)
+        result: float = digits_calculator.calculate_pi(iterations)
+        error: float = abs(result - pi_actual)
         assert error < max_error, f"{iterations} iterations: error {error} exceeds max {max_error}"
 
-    def test_calculate_pi_consistency(self):
+    def test_calculate_pi_consistency(self) -> None:
         """Test that multiple calls with same input produce same result."""
-        result1 = digits_calculator.calculate_pi(10000)
-        result2 = digits_calculator.calculate_pi(10000)
+        result1: float = digits_calculator.calculate_pi(10000)
+        result2: float = digits_calculator.calculate_pi(10000)
         assert result1 == result2, "Same input should produce identical output"
 
-    def test_calculate_pi_returns_float(self):
+    def test_calculate_pi_returns_float(self) -> None:
         """Test that calculate_pi always returns a float."""
-        result = digits_calculator.calculate_pi(100)
+        result: float = digits_calculator.calculate_pi(100)
         assert isinstance(result, float), "Result should be float type"
 
-    def test_calculate_pi_improves_with_iterations(self, pi_actual):
+    def test_calculate_pi_improves_with_iterations(self, pi_actual: float) -> None:
         """Test that accuracy improves as iterations increase."""
-        errors = []
+        errors: list[float] = []
         for iterations in [100, 1_000, 10_000]:
-            result = digits_calculator.calculate_pi(iterations)
-            error = abs(result - pi_actual)
+            result: float = digits_calculator.calculate_pi(iterations)
+            error: float = abs(result - pi_actual)
             errors.append(error)
 
         # Each successive result should be more accurate
@@ -108,78 +113,80 @@ class TestMatrixMultiply:
             ([[1.0, 2.0, 3.0]], [[4.0], [5.0], [6.0]], [[32.0]]),
         ],
     )
-    def test_matrix_multiply_valid(self, a, b, expected):
+    def test_matrix_multiply_valid(
+        self, a: list[list[float]], b: list[list[float]], expected: list[list[float]]
+    ) -> None:
         """Test matrix multiplication with valid matrices."""
-        result = digits_calculator.matrix_multiply(a, b)
+        result: list[list[float]] = digits_calculator.matrix_multiply(a, b)
         assert result == expected, f"Matrix multiplication failed for {a} × {b}"
 
-    def test_matrix_multiply_rectangular_matrices(self):
+    def test_matrix_multiply_rectangular_matrices(self) -> None:
         """Test multiplication with rectangular matrices (3x2 × 2x3)."""
-        a = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
-        b = [[7.0, 8.0, 9.0], [10.0, 11.0, 12.0]]
-        result = digits_calculator.matrix_multiply(a, b)
+        a: list[list[float]] = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+        b: list[list[float]] = [[7.0, 8.0, 9.0], [10.0, 11.0, 12.0]]
+        result: list[list[float]] = digits_calculator.matrix_multiply(a, b)
 
         assert len(result) == 3, "Result should have 3 rows"
         assert len(result[0]) == 3, "Result should have 3 columns"
         assert result[0] == [27.0, 30.0, 33.0], "First row calculation incorrect"
 
-    def test_matrix_multiply_with_negative_numbers(self):
+    def test_matrix_multiply_with_negative_numbers(self) -> None:
         """Test matrix multiplication with negative values."""
-        a = [[-1.0, 2.0], [3.0, -4.0]]
-        b = [[5.0, -6.0], [-7.0, 8.0]]
-        result = digits_calculator.matrix_multiply(a, b)
+        a: list[list[float]] = [[-1.0, 2.0], [3.0, -4.0]]
+        b: list[list[float]] = [[5.0, -6.0], [-7.0, 8.0]]
+        result: list[list[float]] = digits_calculator.matrix_multiply(a, b)
 
         assert result[0][0] == -19.0, "Calculation with negatives failed"
         assert result[1][1] == -50.0, "Calculation with negatives failed"
 
-    def test_matrix_multiply_with_zeros(self):
+    def test_matrix_multiply_with_zeros(self) -> None:
         """Test multiplication with zero matrix."""
-        a = [[0.0, 0.0], [0.0, 0.0]]
-        b = [[5.0, 6.0], [7.0, 8.0]]
-        result = digits_calculator.matrix_multiply(a, b)
+        a: list[list[float]] = [[0.0, 0.0], [0.0, 0.0]]
+        b: list[list[float]] = [[5.0, 6.0], [7.0, 8.0]]
+        result: list[list[float]] = digits_calculator.matrix_multiply(a, b)
 
-        expected = [[0.0, 0.0], [0.0, 0.0]]
+        expected: list[list[float]] = [[0.0, 0.0], [0.0, 0.0]]
         assert result == expected, "Zero matrix multiplication failed"
 
-    def test_matrix_multiply_floating_point(self):
+    def test_matrix_multiply_floating_point(self) -> None:
         """Test matrix multiplication with floating point numbers."""
-        a = [[0.1, 0.2], [0.3, 0.4]]
-        b = [[0.5, 0.6], [0.7, 0.8]]
-        result = digits_calculator.matrix_multiply(a, b)
+        a: list[list[float]] = [[0.1, 0.2], [0.3, 0.4]]
+        b: list[list[float]] = [[0.5, 0.6], [0.7, 0.8]]
+        result: list[list[float]] = digits_calculator.matrix_multiply(a, b)
 
         # [0][0] = 0.1*0.5 + 0.2*0.7 = 0.05 + 0.14 = 0.19
         assert abs(result[0][0] - 0.19) < 1e-10, "Floating point calculation failed"
 
-    def test_matrix_multiply_incompatible_dimensions(self):
+    def test_matrix_multiply_incompatible_dimensions(self) -> None:
         """Test that incompatible dimensions raise ValueError."""
-        a = [[1.0, 2.0], [3.0, 4.0]]  # 2x2 matrix
-        b = [[5.0, 6.0, 7.0], [8.0, 9.0, 10.0], [11.0, 12.0, 13.0]]  # 3x3 matrix
+        a: list[list[float]] = [[1.0, 2.0], [3.0, 4.0]]  # 2x2 matrix
+        b: list[list[float]] = [[5.0, 6.0, 7.0], [8.0, 9.0, 10.0], [11.0, 12.0, 13.0]]  # 3x3 matrix
 
         with pytest.raises(ValueError):
             digits_calculator.matrix_multiply(a, b)
 
-    def test_matrix_multiply_empty_matrix(self):
+    def test_matrix_multiply_empty_matrix(self) -> None:
         """Test that empty matrices raise ValueError."""
-        a = []
-        b = [[1.0, 2.0], [3.0, 4.0]]
+        a: list[list[float]] = []
+        b: list[list[float]] = [[1.0, 2.0], [3.0, 4.0]]
 
         with pytest.raises(ValueError):
             digits_calculator.matrix_multiply(a, b)
 
-    def test_matrix_multiply_inconsistent_row_length(self):
+    def test_matrix_multiply_inconsistent_row_length(self) -> None:
         """Test that inconsistent row lengths raise ValueError."""
-        a = [[1.0, 2.0], [3.0]]
-        b = [[5.0, 6.0], [7.0, 8.0]]
+        a: list[list[float]] = [[1.0, 2.0], [3.0]]
+        b: list[list[float]] = [[5.0, 6.0], [7.0, 8.0]]
 
         with pytest.raises(ValueError):
             digits_calculator.matrix_multiply(a, b)
 
-    def test_matrix_multiply_identity_property(self):
+    def test_matrix_multiply_identity_property(self) -> None:
         """Test that multiplying by identity matrix returns original matrix."""
-        identity = [[1.0, 0.0], [0.0, 1.0]]
-        matrix = [[5.0, 6.0], [7.0, 8.0]]
+        identity: list[list[float]] = [[1.0, 0.0], [0.0, 1.0]]
+        matrix: list[list[float]] = [[5.0, 6.0], [7.0, 8.0]]
 
-        result = digits_calculator.matrix_multiply(identity, matrix)
+        result: list[list[float]] = digits_calculator.matrix_multiply(identity, matrix)
         assert result == matrix, "Identity matrix multiplication failed"
 
 
@@ -201,26 +208,26 @@ class TestSumAsString:
             (1_000_000, 2_000_000, "3000000"),
         ],
     )
-    def test_sum_as_string_results(self, a, b, expected):
+    def test_sum_as_string_results(self, a: int, b: int, expected: str) -> None:
         """Test sum_as_string with various input pairs."""
-        result = digits_calculator.sum_as_string(a, b)
+        result: str = digits_calculator.sum_as_string(a, b)
         assert result == expected, f"sum_as_string({a}, {b}) should return '{expected}'"
 
-    def test_sum_as_string_returns_string(self):
+    def test_sum_as_string_returns_string(self) -> None:
         """Test that sum_as_string always returns a string."""
-        result = digits_calculator.sum_as_string(10, 20)
+        result: str = digits_calculator.sum_as_string(10, 20)
         assert isinstance(result, str), "Result should be string type"
 
-    def test_sum_as_string_consistency(self):
+    def test_sum_as_string_consistency(self) -> None:
         """Test that multiple calls produce consistent results."""
-        result1 = digits_calculator.sum_as_string(100, 200)
-        result2 = digits_calculator.sum_as_string(100, 200)
+        result1: str = digits_calculator.sum_as_string(100, 200)
+        result2: str = digits_calculator.sum_as_string(100, 200)
         assert result1 == result2 == "300", "Consistent results for same inputs"
 
-    def test_sum_as_string_commutative(self):
+    def test_sum_as_string_commutative(self) -> None:
         """Test that addition is commutative."""
-        result1 = digits_calculator.sum_as_string(10, 20)
-        result2 = digits_calculator.sum_as_string(20, 10)
+        result1: str = digits_calculator.sum_as_string(10, 20)
+        result2: str = digits_calculator.sum_as_string(20, 10)
         assert result1 == result2 == "30", "Addition should be commutative"
 
 
@@ -242,7 +249,7 @@ class TestModuleIntegration:
             "factorial",
         ],
     )
-    def test_module_exports_function(self, function_name):
+    def test_module_exports_function(self, function_name: str) -> None:
         """Test that module exports all expected functions."""
         assert hasattr(digits_calculator, function_name), (
             f"Module should have {function_name} function"
@@ -258,7 +265,7 @@ class TestModuleIntegration:
             "factorial",
         ],
     )
-    def test_exported_functions_are_callable(self, function_name):
+    def test_exported_functions_are_callable(self, function_name: str) -> None:
         """Test that all exported functions are callable."""
         func = getattr(digits_calculator, function_name)
         assert callable(func), f"{function_name} should be callable"
@@ -282,17 +289,17 @@ class TestDivide:
             (-10.0, -2.0, 5.0),
         ],
     )
-    def test_divide_valid_operations(self, a, b, expected):
+    def test_divide_valid_operations(self, a: float, b: float, expected: float) -> None:
         """Test divide with various valid inputs."""
-        result = digits_calculator.divide(a, b)
+        result: float = digits_calculator.divide(a, b)
         assert abs(result - expected) < 1e-10, f"divide({a}, {b}) should equal {expected}"
 
-    def test_divide_by_zero_raises_error(self):
+    def test_divide_by_zero_raises_error(self) -> None:
         """Test that division by zero raises ZeroDivisionError."""
         with pytest.raises(ZeroDivisionError):
             digits_calculator.divide(10.0, 0.0)
 
-    def test_divide_by_zero_message(self):
+    def test_divide_by_zero_message(self) -> None:
         """Test that division by zero error contains proper message."""
         with pytest.raises(ZeroDivisionError, match="Division by Zero"):
             digits_calculator.divide(10.0, 0.0)
@@ -312,17 +319,17 @@ class TestSafeSqrt:
             (2.0, math.sqrt(2.0)),
         ],
     )
-    def test_safe_sqrt_valid_inputs(self, x, expected):
+    def test_safe_sqrt_valid_inputs(self, x: float, expected: float) -> None:
         """Test safe_sqrt with valid positive inputs."""
-        result = digits_calculator.safe_sqrt(x)
+        result: float = digits_calculator.safe_sqrt(x)
         assert abs(result - expected) < 1e-10, f"safe_sqrt({x}) should equal {expected}"
 
-    def test_safe_sqrt_negative_raises_error(self):
+    def test_safe_sqrt_negative_raises_error(self) -> None:
         """Test that sqrt of negative number raises ValueError."""
         with pytest.raises(ValueError):
             digits_calculator.safe_sqrt(-9.0)
 
-    def test_safe_sqrt_negative_message(self):
+    def test_safe_sqrt_negative_message(self) -> None:
         """Test that negative sqrt error contains proper message."""
         with pytest.raises(ValueError, match="negative"):
             digits_calculator.safe_sqrt(-1.0)
@@ -343,17 +350,17 @@ class TestFactorial:
             (20, 2432902008176640000),
         ],
     )
-    def test_factorial_valid_inputs(self, n, expected):
+    def test_factorial_valid_inputs(self, n: int, expected: int) -> None:
         """Test factorial with various valid inputs."""
-        result = digits_calculator.factorial(n)
+        result: int = digits_calculator.factorial(n)
         assert result == expected, f"factorial({n}) should equal {expected}"
 
-    def test_factorial_negative_raises_error(self):
+    def test_factorial_negative_raises_error(self) -> None:
         """Test that factorial of negative number raises ValueError."""
         with pytest.raises(ValueError):
             digits_calculator.factorial(-5)
 
-    def test_factorial_negative_message(self):
+    def test_factorial_negative_message(self) -> None:
         """Test that negative factorial error contains proper message."""
         with pytest.raises(ValueError, match="negative"):
             digits_calculator.factorial(-1)
