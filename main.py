@@ -57,21 +57,21 @@ def main() -> None:
     ]
     point: list[list[float]] = [[1.0], [0.0]]  # Point (1,0)
 
-    result: list[list[float]] = digits_calculator.matrix_multiply(rotation_matrix, point)
+    rotation_result: list[list[float]] = digits_calculator.matrix_multiply(rotation_matrix, point)
     print(f"  Rotating point (1,0) by {angle}°:")
     print("    Original: (1.0, 0.0)")
-    print(f"    Rotated:  ({result[0][0]:.3f}, {result[1][0]:.3f})")
+    print(f"    Rotated:  ({rotation_result[0][0]:.3f}, {rotation_result[1][0]:.3f})")
 
     # Large matrix example
     large_a: list[list[float]] = [[float(i + j) for j in range(50)] for i in range(100)]
     large_b: list[list[float]] = [[i * 0.1 for i in range(2)] for _ in range(50)]
 
     start_time = time.perf_counter()
-    large_result: list[list[float]] = digits_calculator.matrix_multiply(large_a, large_b)
+    large_matrix_result: list[list[float]] = digits_calculator.matrix_multiply(large_a, large_b)
     matrix_time = time.perf_counter() - start_time
 
     print(f"  Large matrix (100×50 × 50×2): {matrix_time * 1000:.2f}ms")
-    print(f"    Result shape: {len(large_result)}×{len(large_result[0])}")
+    print(f"    Result shape: {len(large_matrix_result)}×{len(large_matrix_result[0])}")
     print()
 
     # 3. Safe Mathematical Operations
@@ -84,7 +84,7 @@ def main() -> None:
         print(f"  100 ÷ 3 = {safe_div:.6f}")
 
         # This will raise an exception
-        digits_calculator.divide(10.0, 0.0)
+        _ = digits_calculator.divide(10.0, 0.0)
     except ZeroDivisionError as e:
         print(f"  Division by zero caught: ✅ {e}")
 
@@ -94,7 +94,7 @@ def main() -> None:
         print(f"  √2 = {sqrt_result:.10f}")
 
         # This will raise an exception
-        digits_calculator.safe_sqrt(-4.0)
+        _ = digits_calculator.safe_sqrt(-4.0)
     except ValueError as e:
         print(f"  Negative sqrt caught: ✅ {e}")
     print()
@@ -106,14 +106,14 @@ def main() -> None:
     factorials: list[int] = [0, 1, 5, 10, 15, 20]
     for n in factorials:
         try:
-            result: int = digits_calculator.factorial(n)
-            print(f"  {n:2d}! = {result:,}")
+            factorial_result: int = digits_calculator.factorial(n)
+            print(f"  {n:2d}! = {factorial_result:,}")
         except ValueError as e:
             print(f"  {n}! = Error: {e}")
 
     try:
         # This will raise an exception
-        digits_calculator.factorial(-5)
+        _ = digits_calculator.factorial(-5)
     except ValueError as e:
         print(f"  Negative factorial caught: ✅ {e}")
     print()
@@ -130,8 +130,8 @@ def main() -> None:
     ]
 
     for a, b in large_nums:
-        result: str = digits_calculator.sum_as_string(a, b)
-        print(f"  {a:,} + {b:,} = {result}")
+        sum_result: str = digits_calculator.sum_as_string(a, b)
+        print(f"  {a:,} + {b:,} = {sum_result}")
     print()
 
     # 6. Performance Comparison
@@ -139,18 +139,18 @@ def main() -> None:
     print("-" * 50)
 
     # Python vs Rust Pi calculation
-    start_time: float = time.perf_counter()
+    python_start_time: float = time.perf_counter()
     pi_python: float = sum(4 * ((-1) ** k) / (2 * k + 1) for k in range(100_000))
-    python_time: float = time.perf_counter() - start_time
+    python_time: float = time.perf_counter() - python_start_time
 
-    start_time = time.perf_counter()
-    pi_rust: float = digits_calculator.calculate_pi(100_000)
-    rust_time: float = time.perf_counter() - start_time
+    rust_start_time: float = time.perf_counter()
+    pi_rust_final: float = digits_calculator.calculate_pi(100_000)
+    rust_time_final: float = time.perf_counter() - rust_start_time
 
-    speedup: float = python_time / rust_time
+    speedup: float = python_time / rust_time_final
     print("  π calculation (100K iterations):")
     print(f"    Python: {python_time * 1000:.2f}ms → π ≈ {pi_python:.8f}")
-    print(f"    Rust:   {rust_time * 1000:.2f}ms → π ≈ {pi_rust:.8f}")
+    print(f"    Rust:   {rust_time_final * 1000:.2f}ms → π ≈ {pi_rust_final:.8f}")
     print(f"    🚀 Speedup: {speedup:.1f}x faster!")
     print()
 
