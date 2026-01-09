@@ -8,7 +8,7 @@ This template demonstrates how to integrate Rust with Python using PyO3, providi
 
 **Perfect for**: Performance-critical applications, numerical computing, learning Rust-Python integration, and building high-performance Python extensions.
 
-**What's included**: 93 tests (30 Rust + 63 Python), complete development workflow, professional code organization, and comprehensive documentation.
+**What's included**: 95 tests (32 Rust + 63 Python), enterprise-grade code quality with type stubs, complete development workflow, and comprehensive documentation.
 
 ## 📋 Project Structure
 
@@ -22,12 +22,14 @@ rust-with-python/
 │   └── pyproject.toml         # Python build configuration
 ├── tests/
 │   └── test_digits_calculator.py  # 63 comprehensive Python tests
+├── digits_calculator.pyi      # Type stubs for PyO3 module
 ├── main.py                    # Example usage demonstration
 ├── Makefile                   # 15 development commands
 ├── pyproject.toml             # Project configuration & dependencies
 ├── README.md                  # This documentation
 ├── CONTRIBUTING.md            # Development guidelines
 ├── TEMPLATE_COMPLETION.md     # Template transformation report
+├── MACOS_TROUBLESHOOTING.md   # Comprehensive macOS guide
 └── uv.lock                    # Dependency lock file
 ```
 
@@ -35,13 +37,15 @@ rust-with-python/
 
 **Two-module design for maximum testability:**
 
-- **`src/math.rs`**: Pure Rust mathematical functions (30 unit tests, no PyO3 dependencies)
+- **`src/math.rs`**: Pure Rust mathematical functions (32 unit tests, no PyO3 dependencies)
 - **`src/lib.rs`**: PyO3 wrapper layer that exposes functions to Python (handles type conversion and error mapping)
+- **`digits_calculator.pyi`**: Type stubs for perfect IDE support and static analysis
 
 This separation allows:
 - Fast Rust unit testing without Python FFI overhead
 - Clean separation of business logic and binding code
-- Easy maintenance and debugging
+- Complete type safety with modern Python type checking
+- Zero warnings from basedpyright/pylsp/mypy
 - Professional code organization
 
 ## 🚀 Quick Start
@@ -68,9 +72,9 @@ make test
 
 This will:
 1. Create a Python virtual environment with `uv`
-2. Install all Python dependencies
+2. Install all Python dependencies (including mypy for type checking)
 3. Build the Rust extension module
-4. Run all 93 tests to verify everything works
+4. Run all 95 tests to verify everything works
 
 ### Running the Project
 
@@ -124,18 +128,18 @@ Quick verification without full rebuild.
 Runs the main demonstration script.
 
 #### `make test`
-Runs all tests (30 Rust unit tests + 63 Python integration tests = 93 total tests).
+Runs all tests (32 Rust unit tests + 63 Python integration tests = 95 total tests).
 
 #### `make test-rust`
-Runs only the Rust unit tests (fast, no Python FFI).
+Runs only the Rust unit tests (32 tests, fast, no Python FFI).
 
 #### `make test-python`
-Runs only the Python integration tests with pytest.
+Runs only the Python integration tests with pytest (63 tests with full type checking).
 
 ### Code Quality
 
 #### `make lint`
-Checks code quality for both Rust (clippy) and Python (ruff).
+Checks code quality for both Rust (clippy) and Python (ruff) with zero-tolerance policy.
 
 Example output:
 ```bash
@@ -144,6 +148,8 @@ Example output:
 🔍 Checking Python code with ruff...
 ✅ Python code quality checks passed!
 ```
+
+**Quality standards**: Zero warnings policy, modern type annotations, enterprise-grade linting.
 
 #### `make lint-rust`
 Rust-only linting with clippy.
@@ -351,13 +357,13 @@ def test_calculate_pi_accuracy(self, iterations, max_error):
 
 ### Test Coverage
 
-**Total: 93 tests (100% passing)**
+**Total: 95 tests (100% passing)**
 
-#### Rust Unit Tests (30 tests in src/math.rs)
+#### Rust Unit Tests (32 tests in src/math.rs)
 
 Pure Rust function testing without PyO3 dependencies:
 
-- **calculate_pi tests** (4 tests): Accuracy, edge cases, convergence
+- **calculate_pi tests** (6 tests): Accuracy, edge cases, convergence, high-precision algorithms
 - **matrix_multiply tests** (10 tests): Basic operations, dimensions, error cases, floating-point precision
 - **divide tests** (4 tests): Valid operations, error handling, negative numbers
 - **safe_sqrt tests** (3 tests): Valid inputs, negative handling, edge cases  
@@ -369,12 +375,13 @@ Pure Rust function testing without PyO3 dependencies:
 cd digits-calculator && cargo test -- --nocapture
 
 test math::tests::test_calculate_pi_zero_iterations ... ok
+test math::tests::test_calculate_pi_high_precision ... ok
 test math::tests::test_matrix_multiply_basic_2x2 ... ok
 test math::tests::test_divide_basic ... ok
 test math::tests::test_safe_sqrt_basic ... ok
 test math::tests::test_factorial_basic ... ok
 test math::tests::test_sum_as_string_basic ... ok
-# ... and 24 more tests
+# ... and 25 more tests
 ```
 
 #### Python Integration Tests (63 pytest tests in tests/test_digits_calculator.py)
@@ -417,6 +424,8 @@ tests/test_digits_calculator.py::TestFactorial::test_factorial_valid_inputs[5-12
 ================================= 63 passed in 0.03s =================================
 ```
 
+**Type Safety**: All tests include comprehensive type hints and pass strict mypy checking.
+
 ### Run Specific Tests
 
 ```bash
@@ -433,9 +442,15 @@ uv run pytest tests/ --tb=short
 
 ## 🎨 Code Quality
 
-### Linting & Code Analysis
+### Enterprise-Grade Code Quality Standards
 
-The project uses professional linting tools for both languages:
+The project maintains zero-warning policy with modern tooling:
+
+#### Type Safety & Static Analysis
+- **Type stubs**: `digits_calculator.pyi` provides complete PyO3 module types
+- **Modern annotations**: Python 3.13+ style (`list` instead of `List`)
+- **Strict mypy**: Full type checking with enterprise-grade configuration
+- **Zero basedpyright errors**: Perfect IDE support and static analysis
 
 #### Rust Code Quality
 
@@ -460,8 +475,8 @@ make lint-python
 Ruff checks for:
 - PEP 8 style violations
 - Import organization
-- Code complexity
-- Common Python mistakes
+- Modern type annotations (UP006, UP035)
+- Code complexity and best practices
 
 ### Running All Code Quality Checks
 
@@ -478,10 +493,28 @@ make lint
 Located in `pyproject.toml`:
 ```toml
 [tool.ruff.lint]
-line-length = 88
-target-version = "py38"
+line-length = 100
+target-version = "py313"
 extend-select = ["E", "F", "W", "I", "UP", "C4"]
 ```
+
+#### MyPy Configuration (Type Checking)
+
+```toml
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+```
+
+#### Type Stubs
+
+`digits_calculator.pyi` provides complete type information for the PyO3 module:
+- Resolves basedpyright/pylsp attribute errors
+- Enables perfect IDE autocompletion
+- Supports static type analysis
 
 #### Rust Configuration (Cargo)
 
@@ -627,9 +660,9 @@ Expected output:
 🧹 Cleaning up build artifacts...
 📦 Installing dependencies and building...
 🧪 Running all tests...
-✅ All tests passed! (93/93)
+✅ All tests passed! (95/95)
 🔍 Checking code quality...
-✅ All quality checks passed!
+✅ All quality checks passed! (Zero warnings)
 🚀 Running demonstration...
 ✅ Application completed successfully!
 ```
@@ -707,13 +740,14 @@ For comprehensive macOS troubleshooting, see [MACOS_TROUBLESHOOTING.md](MACOS_TR
 ## 🛠️ Technologies Used
 
 - **Rust 1.70+**: Core mathematical functions
-- **Python 3.8+**: Interface and testing
+- **Python 3.13+**: Interface and testing with modern type annotations
 - **PyO3 0.27.0**: Rust-Python bindings  
 - **maturin**: Build tool for PyO3 projects
 - **pytest**: Python testing framework
 - **uv**: Fast Python package manager
-- **ruff**: Python linting and formatting
-- **cargo clippy**: Rust linting
+- **ruff**: Python linting and formatting (zero warnings)
+- **mypy**: Static type checking (strict mode)
+- **cargo clippy**: Rust linting (deny warnings)
 
 ## 📝 License
 
@@ -745,10 +779,12 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 1. **Start here**: Run `make test` and explore the existing functions
 2. **Understand the architecture**: Read `src/math.rs` (pure Rust) and `src/lib.rs` (PyO3 bindings)
-3. **Modify existing functions**: Try changing the `calculate_pi` implementation
-4. **Add a simple function**: Start with a basic math function
-5. **Advanced features**: Explore error handling and complex data types like matrices
-6. **Performance**: Benchmark your Rust vs pure Python implementations
+3. **Explore type safety**: Check `digits_calculator.pyi` for complete type definitions
+4. **Modify existing functions**: Try changing the `calculate_pi` implementation
+5. **Add a simple function**: Start with a basic math function
+6. **Advanced features**: Explore error handling and complex data types like matrices
+7. **Type annotations**: Learn modern Python type hints and mypy integration
+8. **Performance**: Benchmark your Rust vs pure Python implementations
 
 ## 📞 Support
 
