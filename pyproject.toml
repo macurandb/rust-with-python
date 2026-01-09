@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Template project demonstrating Python and Rust integration with PyO3"
 readme = "README.md"
 requires-python = ">=3.13"
-authors = [{name = "Your Name", email = "you@example.com"}]
+authors = [{name = "Duany Baró Menéndez", email = "macurandb@gmail.com"}]
 license = {text = "MIT"}
 keywords = ["python", "rust", "pyo3", "performance", "template"]
 classifiers = [
@@ -32,3 +32,8 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "C4"]
 ignore = ["E501"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

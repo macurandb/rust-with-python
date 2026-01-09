@@ -85,12 +85,111 @@ class TestCalculatePi:
 
 
 # ============================================================================
+# Test Suite: matrix_multiply
+# ============================================================================
+
+
+class TestMatrixMultiply:
+    """Test suite for the matrix_multiply function."""
+
+    @pytest.mark.parametrize(
+        "a,b,expected",
+        [
+            (
+                [[1.0, 2.0], [3.0, 4.0]],
+                [[5.0, 6.0], [7.0, 8.0]],
+                [[19.0, 22.0], [43.0, 50.0]],
+            ),
+            (
+                [[1.0, 0.0], [0.0, 1.0]],
+                [[5.0, 6.0], [7.0, 8.0]],
+                [[5.0, 6.0], [7.0, 8.0]],
+            ),
+            ([[1.0, 2.0, 3.0]], [[4.0], [5.0], [6.0]], [[32.0]]),
+        ],
+    )
+    def test_matrix_multiply_valid(self, a, b, expected):
+        """Test matrix multiplication with valid matrices."""
+        result = digits_calculator.matrix_multiply(a, b)
+        assert result == expected, f"Matrix multiplication failed for {a} × {b}"
+
+    def test_matrix_multiply_rectangular_matrices(self):
+        """Test multiplication with rectangular matrices (3x2 × 2x3)."""
+        a = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+        b = [[7.0, 8.0, 9.0], [10.0, 11.0, 12.0]]
+        result = digits_calculator.matrix_multiply(a, b)
+
+        assert len(result) == 3, "Result should have 3 rows"
+        assert len(result[0]) == 3, "Result should have 3 columns"
+        assert result[0] == [27.0, 30.0, 33.0], "First row calculation incorrect"
+
+    def test_matrix_multiply_with_negative_numbers(self):
+        """Test matrix multiplication with negative values."""
+        a = [[-1.0, 2.0], [3.0, -4.0]]
+        b = [[5.0, -6.0], [-7.0, 8.0]]
+        result = digits_calculator.matrix_multiply(a, b)
+
+        assert result[0][0] == -19.0, "Calculation with negatives failed"
+        assert result[1][1] == -50.0, "Calculation with negatives failed"
+
+    def test_matrix_multiply_with_zeros(self):
+        """Test multiplication with zero matrix."""
+        a = [[0.0, 0.0], [0.0, 0.0]]
+        b = [[5.0, 6.0], [7.0, 8.0]]
+        result = digits_calculator.matrix_multiply(a, b)
+
+        expected = [[0.0, 0.0], [0.0, 0.0]]
+        assert result == expected, "Zero matrix multiplication failed"
+
+    def test_matrix_multiply_floating_point(self):
+        """Test matrix multiplication with floating point numbers."""
+        a = [[0.1, 0.2], [0.3, 0.4]]
+        b = [[0.5, 0.6], [0.7, 0.8]]
+        result = digits_calculator.matrix_multiply(a, b)
+
+        # [0][0] = 0.1*0.5 + 0.2*0.7 = 0.05 + 0.14 = 0.19
+        assert abs(result[0][0] - 0.19) < 1e-10, "Floating point calculation failed"
+
+    def test_matrix_multiply_incompatible_dimensions(self):
+        """Test that incompatible dimensions raise ValueError."""
+        a = [[1.0, 2.0], [3.0, 4.0]]  # 2x2 matrix
+        b = [[5.0, 6.0, 7.0], [8.0, 9.0, 10.0], [11.0, 12.0, 13.0]]  # 3x3 matrix
+
+        with pytest.raises(ValueError):
+            digits_calculator.matrix_multiply(a, b)
+
+    def test_matrix_multiply_empty_matrix(self):
+        """Test that empty matrices raise ValueError."""
+        a = []
+        b = [[1.0, 2.0], [3.0, 4.0]]
+
+        with pytest.raises(ValueError):
+            digits_calculator.matrix_multiply(a, b)
+
+    def test_matrix_multiply_inconsistent_row_length(self):
+        """Test that inconsistent row lengths raise ValueError."""
+        a = [[1.0, 2.0], [3.0]]
+        b = [[5.0, 6.0], [7.0, 8.0]]
+
+        with pytest.raises(ValueError):
+            digits_calculator.matrix_multiply(a, b)
+
+    def test_matrix_multiply_identity_property(self):
+        """Test that multiplying by identity matrix returns original matrix."""
+        identity = [[1.0, 0.0], [0.0, 1.0]]
+        matrix = [[5.0, 6.0], [7.0, 8.0]]
+
+        result = digits_calculator.matrix_multiply(identity, matrix)
+        assert result == matrix, "Identity matrix multiplication failed"
+
+
+# ============================================================================
 # Test Suite: sum_as_string
 # ============================================================================
 
 
 class TestSumAsString:
-    """Test suite for the sum_as_string function."""
+    """Test suite for the sum_as_string function (deprecated, kept for compatibility)."""
 
     @pytest.mark.parametrize(
         "a,b,expected",
@@ -137,7 +236,7 @@ class TestModuleIntegration:
         "function_name",
         [
             "calculate_pi",
-            "sum_as_string",
+            "matrix_multiply",
             "divide",
             "safe_sqrt",
             "factorial",
