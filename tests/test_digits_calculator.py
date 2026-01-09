@@ -2,97 +2,116 @@
 Integration tests for digits_calculator module.
 
 These tests verify that the Rust functions are properly exposed to Python
-and work correctly with Python data types.
+and work correctly with Python data types. Tests use pytest best practices
+with parametrization, fixtures, and proper exception handling.
 """
 
 import math
 
+import pytest
+
 import digits_calculator
+
+
+# ============================================================================
+# Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def pi_actual():
+    """Fixture providing the actual value of pi."""
+    return math.pi
+
+
+# ============================================================================
+# Test Suite: calculate_pi
+# ============================================================================
 
 
 class TestCalculatePi:
     """Test suite for the calculate_pi function."""
 
-    def test_calculate_pi_zero_iterations(self):
-        """Test that zero iterations returns 0."""
-        result = digits_calculator.calculate_pi(0)
-        assert result == 0.0, "Zero iterations should return 0"
-
-    def test_calculate_pi_small_iterations(self):
-        """Test calculate_pi with small number of iterations."""
-        result = digits_calculator.calculate_pi(10)
+    @pytest.mark.parametrize("iterations,expected_range", [
+        (0, (0.0, 0.0)),
+        (1, (3.5, 4.5)),
+        (10, (2.0, 4.0)),
+        (100, (2.5, 3.5)),
+    ])
+    def test_calculate_pi_ranges(self, iterations, expected_range):
+        """Test calculate_pi returns values in expected ranges for various iteration counts."""
+        result = digits_calculator.calculate_pi(iterations)
         assert isinstance(result, float), "Result should be a float"
-        assert 2.0 < result < 4.0, "Pi approximation should be between 2 and 4"
+        assert expected_range[0] <= result <= expected_range[1], (
+            f"Pi({iterations}) should be between {expected_range[0]} and {expected_range[1]}"
+        )
 
-    def test_calculate_pi_standard_iterations(self):
-        """Test calculate_pi with standard iterations."""
-        result = digits_calculator.calculate_pi(1000)
-        pi_actual = math.pi
+    @pytest.mark.parametrize("iterations,max_error", [
+        (1_000, 0.01),
+        (10_000, 0.001),
+        (1_000_000, 0.001),
+    ])
+    def test_calculate_pi_accuracy(self, iterations, max_error, pi_actual):
+        """Test calculate_pi accuracy improves with iterations."""
+        result = digits_calculator.calculate_pi(iterations)
         error = abs(result - pi_actual)
-        assert error < 0.01, f"1000 iterations should be accurate within 0.01, got error: {error}"
-
-    def test_calculate_pi_large_iterations(self):
-        """Test calculate_pi with large number of iterations."""
-        result = digits_calculator.calculate_pi(1_000_000)
-        pi_actual = math.pi
-        error = abs(result - pi_actual)
-        # With 1M iterations, we should be quite accurate
-        assert error < 0.001, f"1M iterations should be accurate within 0.001, got error: {error}"
+        assert error < max_error, (
+            f"{iterations} iterations: error {error} exceeds max {max_error}"
+        )
 
     def test_calculate_pi_consistency(self):
         """Test that multiple calls with same input produce same result."""
         result1 = digits_calculator.calculate_pi(10000)
         result2 = digits_calculator.calculate_pi(10000)
-        assert result1 == result2, "Same input should produce same output"
+        assert result1 == result2, "Same input should produce identical output"
 
-    def test_calculate_pi_type(self):
-        """Test that calculate_pi returns a float."""
+    def test_calculate_pi_returns_float(self):
+        """Test that calculate_pi always returns a float."""
         result = digits_calculator.calculate_pi(100)
-        assert isinstance(result, float), "Result should be a float type"
+        assert isinstance(result, float), "Result should be float type"
 
-    def test_calculate_pi_accuracy_improves(self):
-        """Test that accuracy improves with more iterations."""
-        result_100 = digits_calculator.calculate_pi(100)
-        result_1000 = digits_calculator.calculate_pi(1000)
-        result_10000 = digits_calculator.calculate_pi(10000)
+    def test_calculate_pi_improves_with_iterations(self, pi_actual):
+        """Test that accuracy improves as iterations increase."""
+        errors = []
+        for iterations in [100, 1_000, 10_000]:
+            result = digits_calculator.calculate_pi(iterations)
+            error = abs(result - pi_actual)
+            errors.append(error)
 
-        pi_actual = math.pi
-        error_100 = abs(result_100 - pi_actual)
-        error_1000 = abs(result_1000 - pi_actual)
-        error_10000 = abs(result_10000 - pi_actual)
+        # Each successive result should be more accurate
+        assert errors[0] > errors[1] > errors[2], (
+            f"Errors should decrease: {errors}"
+        )
 
-        assert error_100 > error_1000 > error_10000, "Error should decrease as iterations increase"
+
+
+
+# ============================================================================
+# Test Suite: sum_as_string
+# ============================================================================
 
 
 class TestSumAsString:
     """Test suite for the sum_as_string function."""
 
-    def test_sum_as_string_basic(self):
-        """Test basic addition conversion to string."""
+    @pytest.mark.parametrize("a,b,expected", [
+        (10, 20, "30"),
+        (0, 0, "0"),
+        (5, 0, "5"),
+        (0, 10, "10"),
+        (1_000_000, 2_000_000, "3000000"),
+    ])
+    def test_sum_as_string_results(self, a, b, expected):
+        """Test sum_as_string with various input pairs."""
+        result = digits_calculator.sum_as_string(a, b)
+        assert result == expected, f"sum_as_string({a}, {b}) should return '{expected}'"
+
+    def test_sum_as_string_returns_string(self):
+        """Test that sum_as_string always returns a string."""
         result = digits_calculator.sum_as_string(10, 20)
-        assert result == "30", "10 + 20 should equal '30'"
+        assert isinstance(result, str), "Result should be string type"
 
-    def test_sum_as_string_zero(self):
-        """Test addition with zero."""
-        result = digits_calculator.sum_as_string(0, 0)
-        assert result == "0", "0 + 0 should equal '0'"
-
-    def test_sum_as_string_one_zero(self):
-        """Test addition with one zero."""
-        result = digits_calculator.sum_as_string(5, 0)
-        assert result == "5", "5 + 0 should equal '5'"
-
-    def test_sum_as_string_large_numbers(self):
-        """Test addition with large numbers."""
-        result = digits_calculator.sum_as_string(1_000_000, 2_000_000)
-        assert result == "3000000", "Large number sum should work correctly"
-
-    def test_sum_as_string_return_type(self):
-        """Test that sum_as_string returns a string."""
-        result = digits_calculator.sum_as_string(10, 20)
-        assert isinstance(result, str), "Result should be a string type"
-
-    def test_sum_as_string_multiple_calls(self):
+    def test_sum_as_string_consistency(self):
         """Test that multiple calls produce consistent results."""
         result1 = digits_calculator.sum_as_string(100, 200)
         result2 = digits_calculator.sum_as_string(100, 200)
@@ -105,118 +124,126 @@ class TestSumAsString:
         assert result1 == result2 == "30", "Addition should be commutative"
 
 
+# ============================================================================
+# Test Suite: Module Integration
+# ============================================================================
+
+
 class TestModuleIntegration:
     """Test suite for module integration and attributes."""
 
-    def test_module_has_calculate_pi(self):
-        """Test that module exposes calculate_pi function."""
-        assert hasattr(digits_calculator, "calculate_pi"), (
-            "Module should have calculate_pi function"
+    @pytest.mark.parametrize("function_name", [
+        "calculate_pi",
+        "sum_as_string",
+        "divide",
+        "safe_sqrt",
+        "factorial",
+    ])
+    def test_module_exports_function(self, function_name):
+        """Test that module exports all expected functions."""
+        assert hasattr(digits_calculator, function_name), (
+            f"Module should have {function_name} function"
         )
 
-    def test_module_has_sum_as_string(self):
-        """Test that module exposes sum_as_string function."""
-        assert hasattr(digits_calculator, "sum_as_string"), (
-            "Module should have sum_as_string function"
+    @pytest.mark.parametrize("function_name", [
+        "calculate_pi",
+        "sum_as_string",
+        "divide",
+        "safe_sqrt",
+        "factorial",
+    ])
+    def test_exported_functions_are_callable(self, function_name):
+        """Test that all exported functions are callable."""
+        func = getattr(digits_calculator, function_name)
+        assert callable(func), f"{function_name} should be callable"
+
+
+# ============================================================================
+# Test Suite: Exception Handling
+# ============================================================================
+
+
+class TestDivide:
+    """Test suite for divide function with exception handling."""
+
+    @pytest.mark.parametrize("a,b,expected", [
+        (10.0, 2.0, 5.0),
+        (7.0, 2.0, 3.5),
+        (-10.0, 2.0, -5.0),
+        (10.0, -2.0, -5.0),
+        (-10.0, -2.0, 5.0),
+    ])
+    def test_divide_valid_operations(self, a, b, expected):
+        """Test divide with various valid inputs."""
+        result = digits_calculator.divide(a, b)
+        assert abs(result - expected) < 1e-10, (
+            f"divide({a}, {b}) should equal {expected}"
         )
 
-    def test_functions_are_callable(self):
-        """Test that exposed functions are callable."""
-        assert callable(digits_calculator.calculate_pi), "calculate_pi should be callable"
-        assert callable(digits_calculator.sum_as_string), "sum_as_string should be callable"
-
-
-class TestExceptionHandling:
-    """Test suite for exception handling in Rust functions."""
-
-    def test_divide_basic(self):
-        """Test basic division."""
-        result = digits_calculator.divide(10.0, 2.0)
-        assert result == 5.0, "10 / 2 should equal 5.0"
-
-    def test_divide_by_zero_raises_exception(self):
+    def test_divide_by_zero_raises_error(self):
         """Test that division by zero raises ZeroDivisionError."""
-        with self.raise_exception_check(ZeroDivisionError):
+        with pytest.raises(ZeroDivisionError):
             digits_calculator.divide(10.0, 0.0)
 
-    def test_divide_float_result(self):
-        """Test division with float result."""
-        result = digits_calculator.divide(7.0, 2.0)
-        assert abs(result - 3.5) < 0.0001, "7 / 2 should equal 3.5"
+    def test_divide_by_zero_message(self):
+        """Test that division by zero error contains proper message."""
+        with pytest.raises(ZeroDivisionError, match="Division by Zero"):
+            digits_calculator.divide(10.0, 0.0)
 
-    def test_divide_negative_numbers(self):
-        """Test division with negative numbers."""
-        result = digits_calculator.divide(-10.0, 2.0)
-        assert abs(result - (-5.0)) < 0.0001, "-10 / 2 should equal -5"
 
-    def test_divide_negative_divisor(self):
-        """Test division with negative divisor."""
-        result = digits_calculator.divide(10.0, -2.0)
-        assert abs(result - (-5.0)) < 0.0001, "10 / -2 should equal -5"
+class TestSafeSqrt:
+    """Test suite for safe_sqrt function with exception handling."""
 
-    def test_safe_sqrt_basic(self):
-        """Test basic square root."""
-        result = digits_calculator.safe_sqrt(16.0)
-        assert abs(result - 4.0) < 0.0001, "sqrt(16) should be 4.0"
+    @pytest.mark.parametrize("x,expected", [
+        (0.0, 0.0),
+        (1.0, 1.0),
+        (4.0, 2.0),
+        (9.0, 3.0),
+        (16.0, 4.0),
+        (2.0, math.sqrt(2.0)),
+    ])
+    def test_safe_sqrt_valid_inputs(self, x, expected):
+        """Test safe_sqrt with valid positive inputs."""
+        result = digits_calculator.safe_sqrt(x)
+        assert abs(result - expected) < 1e-10, (
+            f"safe_sqrt({x}) should equal {expected}"
+        )
 
-    def test_safe_sqrt_negative_raises_exception(self):
+    def test_safe_sqrt_negative_raises_error(self):
         """Test that sqrt of negative number raises ValueError."""
-        with self.raise_exception_check(ValueError):
+        with pytest.raises(ValueError):
             digits_calculator.safe_sqrt(-9.0)
 
-    def test_safe_sqrt_zero(self):
-        """Test square root of zero."""
-        result = digits_calculator.safe_sqrt(0.0)
-        assert result == 0.0, "sqrt(0) should be 0.0"
+    def test_safe_sqrt_negative_message(self):
+        """Test that negative sqrt error contains proper message."""
+        with pytest.raises(ValueError, match="negative"):
+            digits_calculator.safe_sqrt(-1.0)
 
-    def test_safe_sqrt_decimal(self):
-        """Test square root of decimal number."""
-        result = digits_calculator.safe_sqrt(2.0)
-        expected = math.sqrt(2.0)
-        assert abs(result - expected) < 0.0001, f"sqrt(2) should be approximately {expected}"
 
-    def test_factorial_basic(self):
-        """Test basic factorial."""
-        result = digits_calculator.factorial(5)
-        assert result == 120, "5! should be 120"
+class TestFactorial:
+    """Test suite for factorial function with exception handling."""
 
-    def test_factorial_zero(self):
-        """Test factorial of zero."""
-        result = digits_calculator.factorial(0)
-        assert result == 1, "0! should be 1"
+    @pytest.mark.parametrize("n,expected", [
+        (0, 1),
+        (1, 1),
+        (2, 2),
+        (3, 6),
+        (5, 120),
+        (10, 3628800),
+        (20, 2432902008176640000),
+    ])
+    def test_factorial_valid_inputs(self, n, expected):
+        """Test factorial with various valid inputs."""
+        result = digits_calculator.factorial(n)
+        assert result == expected, f"factorial({n}) should equal {expected}"
 
-    def test_factorial_one(self):
-        """Test factorial of one."""
-        result = digits_calculator.factorial(1)
-        assert result == 1, "1! should be 1"
-
-    def test_factorial_negative_raises_exception(self):
+    def test_factorial_negative_raises_error(self):
         """Test that factorial of negative number raises ValueError."""
-        with self.raise_exception_check(ValueError):
+        with pytest.raises(ValueError):
             digits_calculator.factorial(-5)
 
-    def test_factorial_large(self):
-        """Test factorial of larger number."""
-        result = digits_calculator.factorial(10)
-        assert result == 3628800, "10! should be 3628800"
+    def test_factorial_negative_message(self):
+        """Test that negative factorial error contains proper message."""
+        with pytest.raises(ValueError, match="negative"):
+            digits_calculator.factorial(-1)
 
-    def test_factorial_very_large(self):
-        """Test factorial of very large number."""
-        result = digits_calculator.factorial(20)
-        assert result == 2432902008176640000, "20! should be 2432902008176640000"
-
-    @staticmethod
-    def raise_exception_check(exception_type):
-        """Context manager for checking exception raising."""
-        class ExceptionChecker:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc_val, exc_tb):
-                if exc_type is None:
-                    raise AssertionError(f"Expected {exception_type.__name__} but no exception was raised")
-                if not issubclass(exc_type, exception_type):
-                    return False  # Re-raise the exception
-                return True  # Suppress the expected exception
-
-        return ExceptionChecker()

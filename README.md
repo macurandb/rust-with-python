@@ -254,8 +254,6 @@ except ValueError as e:
     print(f"Error: {e}")
 ```
 
-## 🧪 Testing
-
 ### Run All Tests
 
 ```bash
@@ -264,13 +262,38 @@ make test
 
 This runs:
 - Rust unit tests
-- Python integration tests
+- Python integration tests with **pytest**
 
 ### Run Tests by Type
 
 ```bash
 make test-rust       # Rust unit tests only
-make test-python     # Python integration tests only
+make test-python     # Python integration tests only (pytest)
+```
+
+### Testing Framework: pytest
+
+The project uses **pytest**, the industry-standard Python testing framework, with professional best practices:
+
+- **Parametrized Tests**: `@pytest.mark.parametrize` for efficient test variations
+- **Fixtures**: Reusable test components with `@pytest.fixture`
+- **Exception Testing**: `pytest.raises()` for clean exception validation
+- **Test Organization**: Logical test classes with clear naming conventions
+- **Detailed Reports**: Rich output with test descriptions and error messages
+
+Example pytest command:
+```bash
+# Run all tests with verbose output
+uv run pytest tests/ -v
+
+# Run specific test class
+uv run pytest tests/test_digits_calculator.py::TestCalculatePi -v
+
+# Run specific test
+uv run pytest tests/test_digits_calculator.py::TestCalculatePi::test_calculate_pi_zero_iterations -v
+
+# Run with detailed output and short traceback
+uv run pytest tests/ -v --tb=short
 ```
 
 ### Test Coverage
@@ -290,37 +313,48 @@ The project includes comprehensive tests for all functions:
 - `test_sum_as_string_zero`: Zero handling
 - `test_sum_as_string_large_numbers`: Large number handling
 
-#### Python Integration Tests (25 tests in tests/test_digits_calculator.py)
+#### Python Integration Tests with pytest (52 tests in tests/test_digits_calculator.py)
 
-**TestCalculatePi (7 tests)**:
-- Zero iterations handling
-- Small and large iteration counts
+**TestCalculatePi** (10 parametrized + individual tests):
+- Range validation with multiple iteration counts
+- Accuracy testing with various tolerances
 - Type checking
-- Consistency across calls
-- Accuracy improvement verification
+- Consistency verification
+- Accuracy improvement with iterations
 
-**TestSumAsString (7 tests)**:
-- Basic operations
-- Zero handling
+**TestSumAsString** (8 parametrized + individual tests):
+- Parametrized testing with 5 input combinations
 - Type verification
+- Consistency checks
 - Commutativity property
 
-**TestExceptionHandling (15 tests)**:
-- `divide()`: Normal division, division by zero, negative numbers
-- `safe_sqrt()`: Basic root, negative handling, zero handling, decimals
-- `factorial()`: Basic operations, zero/one handling, negative validation, large numbers
+**TestModuleIntegration** (10 parametrized tests):
+- Function export verification
+- Module attribute checking
+- Callable verification for all 5 functions
 
-**TestModuleIntegration (3 tests)**:
-- Module attribute verification
-- Function exposure checking
-- Callable verification
+**TestDivide** (7 parametrized + error tests):
+- Valid operations with 5 parameter combinations
+- ZeroDivisionError testing
+- Error message validation
+
+**TestSafeSqrt** (8 parametrized + error tests):
+- Valid square roots with 6 test cases
+- ValueError on negative inputs
+- Error message validation
+
+**TestFactorial** (9 parametrized + error tests):
+- Factorial calculations for 0-20
+- ValueError on negative inputs
+- Error message validation
 
 ### Test Results
 
-All 32+ tests pass:
+All tests pass with pytest:
 ```
-✅ Rust unit tests:       7/7 passing
-✅ Python integration tests: 25/25 passing
+✅ Rust unit tests:          7/7 passing
+✅ Python integration tests: 52/52 passing (parametrized)
+✅ Total coverage:           59+ test cases
 ```
 
 ### Run Specific Tests
@@ -330,10 +364,13 @@ All 32+ tests pass:
 uv run pytest tests/test_digits_calculator.py::TestCalculatePi -v
 
 # Run a specific test
-uv run pytest tests/test_digits_calculator.py::TestCalculatePi::test_calculate_pi_zero_iterations -v
+uv run pytest tests/test_digits_calculator.py::TestCalculatePi::test_calculate_pi_ranges -v
 
 # Run with verbose output
 uv run pytest tests/ -v --tb=short
+
+# Run with coverage report
+uv run pytest tests/ --cov=digits_calculator
 ```
 
 ## 🎨 Code Quality
