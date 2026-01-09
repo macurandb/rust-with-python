@@ -1,5 +1,5 @@
-/// Pure Rust math functions - no PyO3 dependencies
-/// These can be freely tested with `cargo test`
+//! Pure Rust math functions - no PyO3 dependencies
+//! These can be freely tested with `cargo test`
 
 /// Calculates an approximation of Pi using the Leibniz formula.
 ///
