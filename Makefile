@@ -58,9 +58,9 @@ test:
 	@make test-python
 
 test-rust:
-	@echo "🦀 Running Rust unit tests..."
-	cd digits-calculator && cargo test --lib --release 2>&1 || echo "Note: Full cargo test requires Python linking. Tests are validated through Python integration tests."
-	@echo "✅ Rust tests configured!"
+	@echo "🦀 Running Rust unit tests (pure math module)..."
+	cd digits-calculator && cargo test math:: --lib 2>&1
+	@echo "✅ Rust unit tests passed!"
 
 test-python:
 	@echo "🐍 Running Python integration tests..."

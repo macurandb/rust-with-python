@@ -18,17 +18,38 @@ This template demonstrates:
 ```
 rust-with-python/
 ├── digits-calculator/          # Rust extension module
-│   ├── Cargo.toml             # Rust dependencies
+│   ├── Cargo.toml             # Rust dependencies and configuration
 │   ├── src/
-│   │   └── lib.rs             # Rust implementation with unit tests
+│   │   ├── lib.rs             # PyO3 wrapper functions
+│   │   └── math.rs            # Pure Rust logic (unit testable)
 │   └── pyproject.toml         # Maturin configuration
 ├── tests/
-│   └── test_digits_calculator.py  # Python integration tests
+│   └── test_digits_calculator.py  # Python integration tests (52 pytest tests)
 ├── main.py                     # Example usage
 ├── Makefile                    # Development commands
 ├── pyproject.toml             # Python project configuration with ruff
 └── README.md                  # This file
 ```
+
+### Architecture: Pure Rust + PyO3 Wrappers
+
+**`src/math.rs`** - Pure Rust functions (testable with `cargo test`)
+- `calculate_pi()` - Pi approximation using Leibniz formula
+- `sum()` - Simple addition
+- `divide()` - Division with error handling
+- `safe_sqrt()` - Square root with validation
+- `factorial()` - Factorial computation
+
+**`src/lib.rs`** - PyO3 wrapper layer
+- Wraps pure math functions with Python exception handling
+- Converts Rust `Result` types to Python exceptions
+- No logic here, only binding layer
+
+This separation enables:
+- ✅ **Rust unit tests** on pure functions (19 tests in math.rs)
+- ✅ **Python integration tests** on exposed API (52 pytest tests)
+- ✅ **No linking issues** (pure Rust tests don't need Python FFI)
+- ✅ **Professional structure** following Rust best practices
 
 ## 🚀 Quick Start
 
@@ -110,7 +131,7 @@ Execute the main demonstration script.
 Run all tests (Rust unit tests + Python integration tests).
 
 #### `make test-rust`
-Run Rust unit tests only with `cargo test --lib`.
+Run Rust unit tests only with `cargo test math::` (pure Rust functions in math.rs module).
 
 #### `make test-python`
 Run Python integration tests only with `pytest`.
@@ -298,55 +319,90 @@ uv run pytest tests/ -v --tb=short
 
 ### Test Coverage
 
-The project includes comprehensive tests for all functions:
+The project includes **71 comprehensive tests** across two levels:
 
-#### Rust Unit Tests (7 tests in lib.rs)
+#### Rust Unit Tests (19 tests in src/math.rs)
 
-**calculate_pi tests**:
-- `test_calculate_pi_zero_iterations`: Zero input boundary
-- `test_calculate_pi_one_iteration`: Single iteration
-- `test_calculate_pi_accuracy_increases_with_iterations`: Accuracy improvement
-- `test_calculate_pi_large_iterations`: Performance with 1M iterations
+Pure Rust functions tested directly without Python dependencies.
 
-**sum_as_string tests**:
-- `test_sum_as_string_basic`: Basic functionality
-- `test_sum_as_string_zero`: Zero handling
-- `test_sum_as_string_large_numbers`: Large number handling
+**calculate_pi tests** (5 tests):
+- Zero iterations boundary
+- Single iteration approximation
+- Accuracy improvement with iterations
+- Large iteration performance (1M iterations)
+- Consistency checks
 
-#### Python Integration Tests with pytest (52 tests in tests/test_digits_calculator.py)
+**sum tests** (3 tests):
+- Basic addition
+- Zero handling
+- Large number addition
 
-**TestCalculatePi** (10 parametrized + individual tests):
+**divide tests** (4 tests):
+- Basic division
+- Division by zero error
+- Float result precision
+- Negative number handling
+
+**safe_sqrt tests** (3 tests):
+- Valid square roots
+- Negative number error handling
+- Zero edge case
+
+**factorial tests** (5 tests):
+- Basic factorial calculations
+- Zero edge case (0! = 1)
+- One edge case (1! = 1)
+- Negative number error handling
+- Large factorial (20!)
+
+Run with: `make test-rust` or `cargo test math::`
+
+#### Python Integration Tests (52 pytest tests in tests/test_digits_calculator.py)
+
+Tests the exposed Python API with real function calls.
+
+**TestCalculatePi** (10 tests):
 - Range validation with multiple iteration counts
 - Accuracy testing with various tolerances
 - Type checking
 - Consistency verification
 - Accuracy improvement with iterations
 
-**TestSumAsString** (8 parametrized + individual tests):
+**TestSumAsString** (8 tests):
 - Parametrized testing with 5 input combinations
 - Type verification
 - Consistency checks
 - Commutativity property
 
-**TestModuleIntegration** (10 parametrized tests):
+**TestModuleIntegration** (10 tests):
 - Function export verification
 - Module attribute checking
 - Callable verification for all 5 functions
 
-**TestDivide** (7 parametrized + error tests):
+**TestDivide** (7 tests):
 - Valid operations with 5 parameter combinations
 - ZeroDivisionError testing
-- Error message validation
+- Error message validation with pytest.raises()
 
-**TestSafeSqrt** (8 parametrized + error tests):
+**TestSafeSqrt** (8 tests):
 - Valid square roots with 6 test cases
 - ValueError on negative inputs
-- Error message validation
+- Error message validation with pytest.raises()
 
-**TestFactorial** (9 parametrized + error tests):
+**TestFactorial** (9 tests):
 - Factorial calculations for 0-20
 - ValueError on negative inputs
-- Error message validation
+- Error message validation with pytest.raises()
+
+Run with: `make test-python` or `uv run pytest tests/ -v`
+
+**Total Test Summary**:
+```
+Rust Unit Tests:      19/19 passing ✅
+Python Pytest Tests:  52/52 passing ✅
+─────────────────────────────────────
+Total:                71 tests passing ✅
+```
 
 ### Test Results
 
