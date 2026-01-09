@@ -1,17 +1,30 @@
-.PHONY: help install build run test test-rust test-python lint format clean all
+.PHONY: help install build run test test-rust test-python lint lint-rust lint-python format fmt fmt-rust fmt-python check clean all
 
 help:
 	@echo "Available targets:"
-	@echo "  make install      - Install Python dependencies and build Rust extension with uv"
+	@echo ""
+	@echo "Setup & Build:"
+	@echo "  make install      - Install dependencies and build Rust extension with uv"
 	@echo "  make build        - Build the Rust extension with uv"
-	@echo "  make run          - Run the Python project with uv"
+	@echo "  make check        - Check code without building (cargo check + ruff check)"
+	@echo ""
+	@echo "Run & Test:"
+	@echo "  make run          - Run the Python project"
 	@echo "  make test         - Run all tests (Rust + Python)"
 	@echo "  make test-rust    - Run Rust unit tests only"
 	@echo "  make test-python  - Run Python integration tests only"
-	@echo "  make lint         - Run code quality checks with ruff"
-	@echo "  make format       - Format code with ruff"
-	@echo "  make all          - Install, build, and run (complete setup)"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make lint         - Run all linters (Rust + Python)"
+	@echo "  make lint-rust    - Run cargo clippy (Rust linter)"
+	@echo "  make lint-python  - Run ruff check (Python linter)"
+	@echo "  make fmt          - Format all code (Rust + Python)"
+	@echo "  make fmt-rust     - Format Rust code with cargo fmt"
+	@echo "  make fmt-python   - Format Python code with ruff"
+	@echo ""
+	@echo "Maintenance:"
 	@echo "  make clean        - Clean build artifacts"
+	@echo "  make all          - Install, build, and run (complete setup)"
 	@echo ""
 	@echo "Usage: make [target]"
 	@echo "Example: make all"
@@ -54,15 +67,59 @@ test-python:
 	uv run pytest tests/ -v
 	@echo "✅ Python tests passed!"
 
-lint:
-	@echo "🔍 Running code quality checks with ruff..."
+check:
+	@echo "✅ Checking code without full build..."
+	@echo ""
+	@make check-rust
+	@echo ""
+	@make check-python
+
+check-rust:
+	@echo "🦀 Checking Rust code (cargo check)..."
+	cd digits-calculator && cargo check --release 2>&1
+	@echo "✅ Rust code check complete!"
+
+check-python:
+	@echo "🐍 Checking Python code (ruff check)..."
 	uv run ruff check .
-	@echo "✅ Linting complete!"
+	@echo "✅ Python code check complete!"
+
+lint:
+	@echo "🔍 Running all linters..."
+	@echo ""
+	@make lint-rust
+	@echo ""
+	@make lint-python
+
+lint-rust:
+	@echo "🦀 Running cargo clippy (Rust linter)..."
+	cd digits-calculator && cargo clippy --release -- -D warnings 2>&1
+	@echo "✅ Rust linting complete!"
+
+lint-python:
+	@echo "🐍 Running ruff check (Python linter)..."
+	uv run ruff check .
+	@echo "✅ Python linting complete!"
 
 format:
-	@echo "📝 Formatting code with ruff..."
+	@echo "📝 Formatting all code..."
+	@echo ""
+	@make fmt-rust
+	@echo ""
+	@make fmt-python
+
+fmt:
+	@make format
+
+fmt-rust:
+	@echo "🦀 Formatting Rust code with cargo fmt..."
+	cd digits-calculator && cargo fmt 2>&1
+	@echo "✅ Rust formatting complete!"
+
+fmt-python:
+	@echo "🐍 Formatting Python code with ruff..."
 	uv run ruff format .
-	@echo "✅ Formatting complete!"
+	@echo "✅ Python formatting complete!"
 
 all: install run
 	@echo ""

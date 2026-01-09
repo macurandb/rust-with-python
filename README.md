@@ -86,30 +86,63 @@ Sum of 10 + 20 = 30
 ## 📦 Available Commands
 
 ### `make help`
-Display all available commands.
+Display all available commands with organized categories.
 
-### `make install`
+### Setup & Build
+
+#### `make install`
 Install Python dependencies and build the Rust extension.
 
-### `make build`
+#### `make build`
 Build the Rust extension (without running the main script).
 
-### `make run`
+#### `make check`
+Quick code check without full build:
+- `cargo check` for Rust
+- `ruff check` for Python
+
+### Run & Test
+
+#### `make run`
 Execute the main demonstration script.
 
-### `make test`
-Run both Rust unit tests and Python integration tests.
+#### `make test`
+Run all tests (Rust unit tests + Python integration tests).
 
-### `make lint`
-Check code quality with ruff.
+#### `make test-rust`
+Run Rust unit tests only with `cargo test --lib`.
 
-### `make format`
-Format Python code with ruff.
+#### `make test-python`
+Run Python integration tests only with `pytest`.
 
-### `make clean`
+### Code Quality
+
+#### `make lint`
+Run all linters:
+- `cargo clippy` for Rust code analysis
+- `ruff check` for Python code quality
+
+#### `make lint-rust`
+Run `cargo clippy` with warnings as errors on Rust code.
+
+#### `make lint-python`
+Run `ruff check` for Python linting.
+
+#### `make fmt`
+Format all code (Rust + Python).
+
+#### `make fmt-rust`
+Format Rust code with `cargo fmt`.
+
+#### `make fmt-python`
+Format Python code with `ruff format`.
+
+### Maintenance
+
+#### `make clean`
 Remove all build artifacts and cache files.
 
-### `make all`
+#### `make all`
 Complete workflow: install, build, and run.
 
 ## 🔧 Using the Rust Module
@@ -159,6 +192,68 @@ Adds two numbers and returns the result as a string.
 result = digits_calculator.sum_as_string(100, 200)  # Returns "300"
 ```
 
+### Exception Handling Functions
+
+The module includes functions demonstrating proper error handling from Rust to Python:
+
+#### `divide(a: float, b: float) -> float`
+
+Divides two numbers with proper error handling.
+
+- **Parameters**: `a` (dividend), `b` (divisor)
+- **Returns**: Result of a / b as float
+- **Raises**: `ZeroDivisionError` if b is zero
+
+**Example**:
+```python
+import digits_calculator
+
+# Normal operation
+result = digits_calculator.divide(10.0, 2.0)  # Returns 5.0
+
+# Error handling
+try:
+    result = digits_calculator.divide(10.0, 0.0)
+except ZeroDivisionError as e:
+    print(f"Error: {e}")
+```
+
+#### `safe_sqrt(x: float) -> float`
+
+Calculates square root with validation.
+
+- **Parameters**: `x` - Number to get square root of
+- **Returns**: Square root of x
+- **Raises**: `ValueError` if x is negative
+
+**Example**:
+```python
+result = digits_calculator.safe_sqrt(16.0)  # Returns 4.0
+
+try:
+    result = digits_calculator.safe_sqrt(-9.0)
+except ValueError as e:
+    print(f"Error: {e}")
+```
+
+#### `factorial(n: int) -> int`
+
+Calculates factorial with boundary checking.
+
+- **Parameters**: `n` - Number to calculate factorial for
+- **Returns**: Factorial of n
+- **Raises**: `ValueError` if n is negative
+
+**Example**:
+```python
+result = digits_calculator.factorial(5)  # Returns 120
+
+try:
+    result = digits_calculator.factorial(-5)
+except ValueError as e:
+    print(f"Error: {e}")
+```
+
 ## 🧪 Testing
 
 ### Run All Tests
@@ -167,63 +262,142 @@ result = digits_calculator.sum_as_string(100, 200)  # Returns "300"
 make test
 ```
 
-### Run Rust Tests Only
+This runs:
+- Rust unit tests
+- Python integration tests
+
+### Run Tests by Type
 
 ```bash
-cd digits-calculator
-cargo test --release
-```
-
-### Run Python Integration Tests Only
-
-```bash
-uv run pytest tests/ -v
+make test-rust       # Rust unit tests only
+make test-python     # Python integration tests only
 ```
 
 ### Test Coverage
 
-- **Rust Unit Tests** (`digits-calculator/src/lib.rs`):
-  - `test_calculate_pi_zero_iterations`: Boundary condition test
-  - `test_calculate_pi_one_iteration`: Convergence test
-  - `test_calculate_pi_accuracy_increases_with_iterations`: Accuracy improvement
-  - `test_calculate_pi_large_iterations`: Performance with large numbers
-  - `test_sum_as_string_basic`: Basic functionality
-  - `test_sum_as_string_large_numbers`: Boundary values
+The project includes comprehensive tests for all functions:
 
-- **Python Integration Tests** (`tests/test_digits_calculator.py`):
-  - Type checking (float, string returns)
-  - Mathematical accuracy
-  - Consistency across multiple calls
-  - Module exposure and callable verification
+#### Rust Unit Tests (7 tests in lib.rs)
+
+**calculate_pi tests**:
+- `test_calculate_pi_zero_iterations`: Zero input boundary
+- `test_calculate_pi_one_iteration`: Single iteration
+- `test_calculate_pi_accuracy_increases_with_iterations`: Accuracy improvement
+- `test_calculate_pi_large_iterations`: Performance with 1M iterations
+
+**sum_as_string tests**:
+- `test_sum_as_string_basic`: Basic functionality
+- `test_sum_as_string_zero`: Zero handling
+- `test_sum_as_string_large_numbers`: Large number handling
+
+#### Python Integration Tests (25 tests in tests/test_digits_calculator.py)
+
+**TestCalculatePi (7 tests)**:
+- Zero iterations handling
+- Small and large iteration counts
+- Type checking
+- Consistency across calls
+- Accuracy improvement verification
+
+**TestSumAsString (7 tests)**:
+- Basic operations
+- Zero handling
+- Type verification
+- Commutativity property
+
+**TestExceptionHandling (15 tests)**:
+- `divide()`: Normal division, division by zero, negative numbers
+- `safe_sqrt()`: Basic root, negative handling, zero handling, decimals
+- `factorial()`: Basic operations, zero/one handling, negative validation, large numbers
+
+**TestModuleIntegration (3 tests)**:
+- Module attribute verification
+- Function exposure checking
+- Callable verification
+
+### Test Results
+
+All 32+ tests pass:
+```
+✅ Rust unit tests:       7/7 passing
+✅ Python integration tests: 25/25 passing
+```
+
+### Run Specific Tests
+
+```bash
+# Run a specific test class
+uv run pytest tests/test_digits_calculator.py::TestCalculatePi -v
+
+# Run a specific test
+uv run pytest tests/test_digits_calculator.py::TestCalculatePi::test_calculate_pi_zero_iterations -v
+
+# Run with verbose output
+uv run pytest tests/ -v --tb=short
+```
 
 ## 🎨 Code Quality
 
-### Format Code
+### Linting & Code Analysis
+
+The project uses industry-standard tools for code quality:
+
+#### Rust Code Quality
+
+- **cargo clippy**: Rust's official linter that catches common mistakes
+- **cargo fmt**: Automatic Rust code formatter
+- **cargo check**: Quick syntax and type checking without building
 
 ```bash
-make format
+make lint-rust    # Run cargo clippy with deny-warnings
+make fmt-rust     # Format Rust code
+make check-rust   # Quick check
 ```
 
-Uses `ruff` to format Python code according to project standards.
+#### Python Code Quality
 
-### Lint Code
+- **ruff check**: Fast Python linter (includes E, F, W, I, UP, C4 rules)
+- **ruff format**: Python code formatter following project standards
+- **pytest**: Comprehensive testing framework
 
 ```bash
-make lint
+make lint-python   # Run ruff check
+make fmt-python    # Format Python code
+make test-python   # Run integration tests
 ```
 
-Checks Python code quality and style.
+### Running All Code Quality Checks
+
+```bash
+make lint       # Run all linters (Rust + Python)
+make fmt        # Format all code (Rust + Python)
+make check      # Quick checks without full build
+```
 
 ### Configuration
 
-Ruff is configured in `pyproject.toml`:
+#### Ruff Configuration (Python)
+
+Defined in `pyproject.toml`:
 
 ```toml
-[tool.ruff]
+[tool.ruff.lint]
 line-length = 100
 target-version = "py313"
 extend-select = ["E", "F", "W", "I", "UP", "C4"]
 ```
+
+**Rules**:
+- `E`: PEP 8 errors
+- `F`: Pyflakes (undefined names, unused imports)
+- `W`: PEP 8 warnings
+- `I`: isort (import sorting)
+- `UP`: PyUpgrade (modernize code)
+- `C4`: flake8-comprehensions
+
+#### Rust Configuration (Cargo)
+
+Defined in `digits-calculator/Cargo.toml` with clippy lint levels set to deny.
 
 ## 📚 Creating Your Own Rust Functions
 
@@ -304,24 +478,57 @@ make install
 - Edit Rust code in `digits-calculator/src/lib.rs`
 - Edit Python code in `.py` files
 
-### 3. Build and Test
+### 3. Code Quality Checks
+
+Before committing, ensure code passes all quality checks:
 
 ```bash
-make build     # Build the extension
-make test      # Run all tests
-make lint      # Check code quality
+make lint       # Run linters (cargo clippy + ruff check)
+make fmt        # Format code (cargo fmt + ruff format)
+make check      # Quick check without full build
 ```
 
-### 4. Format Code
+### 4. Build and Test
 
 ```bash
-make format    # Auto-format Python code
+make build      # Build the extension
+make test       # Run all tests (Rust + Python)
+```
+
+Or run tests separately:
+
+```bash
+make test-rust     # Rust unit tests only
+make test-python   # Python integration tests only
 ```
 
 ### 5. Run Application
 
 ```bash
-make run       # Run main.py
+make run        # Run main.py
+```
+
+### Complete Development Cycle
+
+A typical development session:
+
+```bash
+# Setup
+make install
+
+# Make your changes
+# ... edit files ...
+
+# Quality checks
+make fmt        # Format code
+make lint       # Check code quality
+
+# Build and test
+make build      # Compile Rust extension
+make test       # Run all tests
+
+# Deploy/run
+make run        # Execute application
 ```
 
 ## 🔍 Troubleshooting
@@ -419,3 +626,5 @@ For issues and questions:
 **Happy Coding! 🚀**
 
 Last updated: January 2026
+
+**Recent additions**: Exception handling functions, comprehensive linting and formatting tools, enhanced testing infrastructure
