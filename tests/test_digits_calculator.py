@@ -124,3 +124,99 @@ class TestModuleIntegration:
         """Test that exposed functions are callable."""
         assert callable(digits_calculator.calculate_pi), "calculate_pi should be callable"
         assert callable(digits_calculator.sum_as_string), "sum_as_string should be callable"
+
+
+class TestExceptionHandling:
+    """Test suite for exception handling in Rust functions."""
+
+    def test_divide_basic(self):
+        """Test basic division."""
+        result = digits_calculator.divide(10.0, 2.0)
+        assert result == 5.0, "10 / 2 should equal 5.0"
+
+    def test_divide_by_zero_raises_exception(self):
+        """Test that division by zero raises ZeroDivisionError."""
+        with self.raise_exception_check(ZeroDivisionError):
+            digits_calculator.divide(10.0, 0.0)
+
+    def test_divide_float_result(self):
+        """Test division with float result."""
+        result = digits_calculator.divide(7.0, 2.0)
+        assert abs(result - 3.5) < 0.0001, "7 / 2 should equal 3.5"
+
+    def test_divide_negative_numbers(self):
+        """Test division with negative numbers."""
+        result = digits_calculator.divide(-10.0, 2.0)
+        assert abs(result - (-5.0)) < 0.0001, "-10 / 2 should equal -5"
+
+    def test_divide_negative_divisor(self):
+        """Test division with negative divisor."""
+        result = digits_calculator.divide(10.0, -2.0)
+        assert abs(result - (-5.0)) < 0.0001, "10 / -2 should equal -5"
+
+    def test_safe_sqrt_basic(self):
+        """Test basic square root."""
+        result = digits_calculator.safe_sqrt(16.0)
+        assert abs(result - 4.0) < 0.0001, "sqrt(16) should be 4.0"
+
+    def test_safe_sqrt_negative_raises_exception(self):
+        """Test that sqrt of negative number raises ValueError."""
+        with self.raise_exception_check(ValueError):
+            digits_calculator.safe_sqrt(-9.0)
+
+    def test_safe_sqrt_zero(self):
+        """Test square root of zero."""
+        result = digits_calculator.safe_sqrt(0.0)
+        assert result == 0.0, "sqrt(0) should be 0.0"
+
+    def test_safe_sqrt_decimal(self):
+        """Test square root of decimal number."""
+        result = digits_calculator.safe_sqrt(2.0)
+        expected = math.sqrt(2.0)
+        assert abs(result - expected) < 0.0001, f"sqrt(2) should be approximately {expected}"
+
+    def test_factorial_basic(self):
+        """Test basic factorial."""
+        result = digits_calculator.factorial(5)
+        assert result == 120, "5! should be 120"
+
+    def test_factorial_zero(self):
+        """Test factorial of zero."""
+        result = digits_calculator.factorial(0)
+        assert result == 1, "0! should be 1"
+
+    def test_factorial_one(self):
+        """Test factorial of one."""
+        result = digits_calculator.factorial(1)
+        assert result == 1, "1! should be 1"
+
+    def test_factorial_negative_raises_exception(self):
+        """Test that factorial of negative number raises ValueError."""
+        with self.raise_exception_check(ValueError):
+            digits_calculator.factorial(-5)
+
+    def test_factorial_large(self):
+        """Test factorial of larger number."""
+        result = digits_calculator.factorial(10)
+        assert result == 3628800, "10! should be 3628800"
+
+    def test_factorial_very_large(self):
+        """Test factorial of very large number."""
+        result = digits_calculator.factorial(20)
+        assert result == 2432902008176640000, "20! should be 2432902008176640000"
+
+    @staticmethod
+    def raise_exception_check(exception_type):
+        """Context manager for checking exception raising."""
+        class ExceptionChecker:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                if exc_type is None:
+                    raise AssertionError(f"Expected {exception_type.__name__} but no exception was raised")
+                if not issubclass(exc_type, exception_type):
+                    return False  # Re-raise the exception
+                return True  # Suppress the expected exception
+
+        return ExceptionChecker()
